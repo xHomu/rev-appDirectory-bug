@@ -4,7 +4,7 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 
-import { PassThrough } from 'node:stream'
+import { PassThrough } from "node:stream";
 
 import type {
   ActionFunctionArgs,
@@ -12,17 +12,17 @@ import type {
   EntryContext,
   LoaderFunctionArgs,
   Session,
-} from '@remix-run/node'
-import { createReadableStreamFromReadable } from '@remix-run/node'
-import { RemixServer } from '@remix-run/react'
-import { isbot } from 'isbot'
-import { renderToPipeableStream } from 'react-dom/server'
-import { createExpressApp } from 'remix-create-express-app'
-import morgan from 'morgan'
-import { sayHello } from '#app/hello.server'
-import { type SessionData, type SessionFlashData } from '#app/session.server'
+} from "@remix-run/node";
+import { createReadableStreamFromReadable } from "@remix-run/node";
+import { RemixServer } from "@remix-run/react";
+import { isbot } from "isbot";
+import { renderToPipeableStream } from "react-dom/server";
+import { createExpressApp } from "remix-create-express-app";
+import morgan from "morgan";
+import { sayHello } from "./hello.server";
+import { type SessionData, type SessionFlashData } from "./session.server";
 
-const ABORT_DELAY = 5_000
+const ABORT_DELAY = 5_000;
 
 export default function handleRequest(
   request: Request,
@@ -32,13 +32,13 @@ export default function handleRequest(
   // This is ignored so we can keep it in the template for visibility.  Feel
   // free to delete this parameter in your app if you're not using it!
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadContext: AppLoadContext,
+  loadContext: AppLoadContext
 ) {
-  const handlerName = isbot(request.headers.get('user-agent') || '')
-    ? 'onAllReady'
-    : 'onShellReady'
+  const handlerName = isbot(request.headers.get("user-agent") || "")
+    ? "onAllReady"
+    : "onShellReady";
   return new Promise((resolve, reject) => {
-    let shellRendered = false
+    let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
       <RemixServer
         context={remixContext}
@@ -47,64 +47,64 @@ export default function handleRequest(
       />,
       {
         [handlerName]() {
-          shellRendered = true
-          const body = new PassThrough()
-          const stream = createReadableStreamFromReadable(body)
+          shellRendered = true;
+          const body = new PassThrough();
+          const stream = createReadableStreamFromReadable(body);
 
-          responseHeaders.set('Content-Type', 'text/html')
+          responseHeaders.set("Content-Type", "text/html");
 
           resolve(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            }),
-          )
+            })
+          );
 
-          pipe(body)
+          pipe(body);
         },
         onShellError(error: unknown) {
-          reject(error)
+          reject(error);
         },
         onError(error: unknown) {
-          responseStatusCode = 500
+          responseStatusCode = 500;
           // Log streaming rendering errors from inside the shell.  Don't log
           // errors encountered during initial shell rendering since they'll
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
-            console.error(error)
+            console.error(error);
           }
         },
-      },
-    )
+      }
+    );
 
-    setTimeout(abort, ABORT_DELAY)
-  })
+    setTimeout(abort, ABORT_DELAY);
+  });
 }
 
 export function handleDataRequest(
   response: Response,
-  { request, params, context }: LoaderFunctionArgs | ActionFunctionArgs,
+  { request, params, context }: LoaderFunctionArgs | ActionFunctionArgs
 ) {
-  console.log('handleDataRequest', response)
-  return response
+  console.log("handleDataRequest", response);
+  return response;
 }
 
-declare module '@remix-run/server-runtime' {
+declare module "@remix-run/server-runtime" {
   export interface AppLoadContext {
-    sayHello: () => string
-    session: Session<SessionData, SessionFlashData>
-    user?: string
+    sayHello: () => string;
+    session: Session<SessionData, SessionFlashData>;
+    user?: string;
   }
 }
 
 export const app = createExpressApp({
-  configure: app => {
+  configure: (app) => {
     // customize your express app with additional middleware
-    app.use(morgan('tiny'))
+    app.use(morgan("tiny"));
   },
   getLoadContext: () => {
     // return the AppLoadContext
-    return { sayHello } as AppLoadContext
+    return { sayHello } as AppLoadContext;
   },
   unstable_middleware: true,
-})
+});

@@ -1,24 +1,24 @@
-import { serverOnly$ } from 'vite-env-only'
-import { requireAuth } from '#app/middleware/requireAuth'
+import { serverOnly$ } from "vite-env-only";
+import { requireAuth } from "../middleware/requireAuth";
 
-export const middleware = serverOnly$([requireAuth])
+export const middleware = serverOnly$([requireAuth]);
 
-import { type LoaderFunctionArgs } from '@remix-run/node'
-import { Form, Outlet, useLoaderData } from '@remix-run/react'
+import { type LoaderFunctionArgs } from "@remix-run/node";
+import { Form, Outlet, useLoaderData } from "@remix-run/react";
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  return { user: context.user }
+  return { user: context.user };
 }
 
 export default function Component() {
-  const { user } = useLoaderData<typeof loader>()
+  const { user } = useLoaderData<typeof loader>();
 
   return (
     <div>
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           gap: 32,
           marginBottom: 16,
         }}
@@ -30,5 +30,5 @@ export default function Component() {
       </div>
       <Outlet />
     </div>
-  )
+  );
 }
