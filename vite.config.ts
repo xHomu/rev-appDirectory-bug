@@ -15,6 +15,7 @@ export default defineConfig({
     expressDevServer(),
     envOnly(),
     remix({
+      appDirectory: "remix-app",
       future: { unstable_singleFetch: true },
     }),
     tsconfigPaths(),
