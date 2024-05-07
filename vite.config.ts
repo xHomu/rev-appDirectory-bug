@@ -12,7 +12,9 @@ export default defineConfig({
     target: "esnext",
   },
   plugins: [
-    expressDevServer(),
+    expressDevServer({
+      appDirectory: "remix-app",
+    }),
     envOnly(),
     remix({
       appDirectory: "remix-app",
